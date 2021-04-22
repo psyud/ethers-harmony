@@ -2,19 +2,34 @@ import { Method } from "./enums/Method";
 
 export default class RpcRequestFactory {
     buildRequest(method: string, params: any): RpcRequest {
-        let rpcMethod: string;
         let rpcParams: any[] = [];
 
         switch(method){
+            // Blockchain/Network
+            case Method.blockNumber:
+            case Method.getCirculatingSupply:
+            case Method.getEpoch:
+            case Method.getLastCrossLinks:
+            case Method.getLeader:
+            case Method.gasPrice:
+            case Method.getShardingStructure:
+            case Method.getTotalSupply:
+                break;
+            case Method.getValidators:
+            case Method.getValidatorKeys:
+                rpcParams = [
+                    params.epochNumber
+                ]
+                break;
+
+            // Account
             case Method.getBalance:
-                rpcMethod = `hmyv2_${Method.getBalance}`;
                 rpcParams = [
                     params.address
                 ]
                 break;
 
             case Method.getBalanceByBlockNumber:
-                rpcMethod = `hmyv2_${Method.getBalanceByBlockNumber}`;
                 rpcParams = [
                     params.address,
                     params.blockNumber
@@ -22,7 +37,6 @@ export default class RpcRequestFactory {
                 break;
 
             case Method.getStakingTransactionsCount:
-                rpcMethod = `hmyv2_${Method.getStakingTransactionsCount}`;
                 rpcParams = [
                     params.address,
                     params.stakingTnxType
@@ -30,7 +44,7 @@ export default class RpcRequestFactory {
                 break;
 
             case Method.getStakingTransactionsHistory:
-                rpcMethod = `hmyv2_${Method.getStakingTransactionsHistory}`;
+            case Method.getTransactionsHistory:
                 rpcParams = [
                     {
                         address: params.address,
@@ -44,24 +58,9 @@ export default class RpcRequestFactory {
                 break;
 
             case Method.getTransactionsCount:
-                rpcMethod = `hmyv2_${Method.getStakingTransactionsCount}`;
                 rpcParams = [
                     params.address,
                     params.stakingTnxType
-                ]
-                break;
-
-            case Method.getTransactionsHistory:
-                rpcMethod = `hmyv2_${Method.getTransactionsHistory}`;
-                rpcParams = [
-                    {
-                        address: params.address,
-                        pageIndex: params.pageIndex,
-                        pageSize: params.pageSize,
-                        fullTx: params.fullTx,
-                        txType: params.txType,
-                        order: params.order
-                    }
                 ]
                 break;
 
@@ -72,7 +71,7 @@ export default class RpcRequestFactory {
         return {
             jsonrpc: '2.0',
             id: 1,
-            method: rpcMethod,
+            method: `hmyv2_${method}`,
             params: rpcParams
         }
     }

@@ -39,6 +39,67 @@ export default class HarmonyProvider extends ethers.providers.BaseProvider {
         }))
     }
 
+    // Blockchain/Network
+    async getBlockNumber(): Promise<number> {
+        await this.getNetwork();
+
+        return (await this.resolveBigNumberRequest(Method.blockNumber, {})).toNumber();
+    }
+    
+    async getCirculatingSupply(): Promise<number> {
+        await this.getNetwork();
+
+        return await this.resolveFloatRequest(Method.getCirculatingSupply, {});
+    }
+
+    async getEpoch(): Promise<number> {
+        await this.getNetwork();
+
+        return await this.resolveIntRequest(Method.getEpoch, {});
+    }
+
+    async getLastCrossLinks(): Promise<Array<any>> {
+        await this.getNetwork();
+
+        return await this.resolveAnyRequest(Method.getLastCrossLinks, {});
+    }
+
+    async getLeader(): Promise<string> {
+        await this.getNetwork();
+
+        return await this.resolveAnyRequest(Method.getLeader, {});
+    }
+
+    async getGasPrice(): Promise<BigNumber> {
+        await this.getNetwork();
+
+        return await this.resolveBigNumberRequest(Method.gasPrice, {});
+    }
+
+    async getShardingStructure(): Promise<Array<any>> {
+        await this.getNetwork();
+
+        return await this.resolveAnyRequest(Method.getShardingStructure, {});
+    }
+
+    async getTotalSupply(): Promise<number> {
+        await this.getNetwork();
+
+        return await this.resolveIntRequest(Method.getTotalSupply, {});
+    }
+
+    async getValidators(epochNumber: number): Promise<{ shardId: number, validators: Array<any> }> {
+        await this.getNetwork();
+
+        return await this.resolveAnyRequest(Method.getValidators, { epochNumber });
+    }
+
+    async getValidatorKeys(epochNumber: number): Promise<Array<string>> {
+        await this.getNetwork();
+
+        return await this.resolveAnyRequest(Method.getValidatorKeys, { epochNumber });
+    }
+
     // Accounts
     async getBalance(addressOrName: string | Promise<string>): Promise<BigNumber> {
         return super.getBalance(addressOrName);
@@ -51,8 +112,7 @@ export default class HarmonyProvider extends ethers.providers.BaseProvider {
             blockNumber
         });
 
-        return this.resolveNumericRequest(Method.getBalanceByBlockNumber, params);
-        
+        return this.resolveBigNumberRequest(Method.getBalanceByBlockNumber, params);
     }
 
     async getStakingTransactionsCount(address: string, stakingTnxType: StakingTnxType): Promise<BigNumber> {
@@ -62,7 +122,7 @@ export default class HarmonyProvider extends ethers.providers.BaseProvider {
             stakingTnxType
         })
 
-        return this.resolveNumericRequest(Method.getStakingTransactionsCount, params);
+        return this.resolveBigNumberRequest(Method.getStakingTransactionsCount, params);
     }
 
     async getStakingTransactionsHistory(address: string, pageIndex?: number, pageSize?: number, fullTx?: boolean, txType?: StakingTnxType, order?: Order): Promise<any> {
@@ -86,7 +146,7 @@ export default class HarmonyProvider extends ethers.providers.BaseProvider {
             stakingTnxType
         })
 
-        return this.resolveNumericRequest(Method.getTransactionsCount, params);
+        return this.resolveBigNumberRequest(Method.getTransactionsCount, params);
     }
 
     async getTransactionsHistory(address: string, pageIndex?: number, pageSize?: number, fullTx?: boolean, txType?: StakingTnxType, order?: Order): Promise<any> {
@@ -133,7 +193,7 @@ export default class HarmonyProvider extends ethers.providers.BaseProvider {
         return await this.perform(method, params);
     }
 
-    async resolveNumericRequest(method: Method, params: any): Promise<BigNumber> {
+    async resolveBigNumberRequest(method: Method, params: any): Promise<BigNumber> {
         const result = await this.perform(method, params);
         try {
             return BigNumber.from(result);
@@ -143,6 +203,14 @@ export default class HarmonyProvider extends ethers.providers.BaseProvider {
                 params, result, error
             });
         }
+    }
+
+    async resolveFloatRequest(method: Method, params: any): Promise<number> {
+        return Number.parseFloat(await this.perform(method, params));
+    }
+
+    async resolveIntRequest(method: Method, params: any): Promise<number> {
+        return Number.parseInt(await this.perform(method, params));
     }
 }
 
